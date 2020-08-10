@@ -28,4 +28,43 @@
 ![](./01-images/04-StrategicDDD.png)
 
 ### Tactical Design
-- 
+- Design is an iterative process, it starts with strategic design, followed by tactical design.
+- Tactical design is much more hands-on and closer to the actual code; it deals with classes and modules.
+- A **Value Object** is an object whose value is of importance.
+  - Value objects are not only containers of data - they can also contain business logic.
+  - These are immutable i.e. cannot be changed once they are created.
+  - They do not have distinct identity, so only their properties can be used to distinguish between two instances.
+  - Two Value Objects with the exact same properties can be considered equal.
+  - For complex value objects, consider using the *builder* or *essence* pattern.
+- An **Entity** is an object whose identity is of importance.
+  - It is a simple entity in a domain model that can be related to a single row in a relational database that are differentiated by an id.
+  - It can also contain business logic.
+  - Every entity has a unique ID that is assigned when the entity is created and remains unchanged throughout the lifespan of the entity.
+  - Entities are mutable i.e. can change attribute values once they are created except ID. Not all attribute are allowed to be changed; domain experts determine the attributes that can be changed.
+- Value objects are easier to work with because they are immutable and small. Therefore, we should aim for a design with few entities and many value objects.
+- It is not easy to model something as a value object or as an entity. 
+  - In invoice system, the street address is just something you print on the invoice. In this street address is a Value Object.
+  - In public utility system for gas line, the street address is an entity and it may even be split up into smaller entities like building or apartment.
+- An **Aggregate** is a group of entities and value objects that have certain characteristics as given below:
+  - The aggregate is created, retrieved and stored as a whole.
+  - The aggregate is always in a consistent state. All state-altering operations are performed through the aggregate root.
+  - The aggregate is owned by an entity called the aggregate root, whose ID is used to identify the aggregate itself.
+  ![](/01-images/05-Aggregate.png)
+  - An aggregate can be referenced from the outside through its root only.
+  - Local entities cannot be referenced from outside the aggregate.
+  - While referencing another aggregate directly, create a value object that wraps the ID of the aggregate root and use that as the reference.
+  - To make changes to multiple aggregates use domain events to attain eventual consistency.
+  ![](/01-images/06-AggregateCommunication.png)
+- In an invoicing application, invoice is an aggregate containing invoice and item details.
+- A **Domain Event** is anything that happens in the domain model that may be of interest to other parts of the system. 
+  - Entity and Value Object are used to describe the static state.
+  - Using Domain Events, business models will have ability to describe things that happen and change the state of the model.
+  - Domain events can be coarse-grained i.e. specific aggregate root is created or a process is started
+  - Domain events can be fine-grained i.e. particular attribute of a particular aggregate root is changed
+  - Domain events have certain characteristics as given below:
+    - They are immutable
+    - They have a timestamp when the event in question occurred.
+    - They may have a unique ID that helps to distinguish one event from another. 
+    - They are published by aggregate roots or domain services.
+    - Domain event publisher and listener belong to different transaction.
+  - *Event sourcing* design pattern can be used to implement Domain events.
